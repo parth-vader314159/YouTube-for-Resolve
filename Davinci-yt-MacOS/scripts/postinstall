@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "postinstall started" > /tmp/yt_debug.log
+
+REAL_USER=$(stat -f%Su /dev/console)
+echo "REAL_USER=$REAL_USER" >> /tmp/yt_debug.log
+
+REAL_HOME=$(dscl . -read /Users/"$REAL_USER" NFSHomeDirectory | awk '{print $2}')
+echo "REAL_HOME=$REAL_HOME" >> /tmp/yt_debug.log
+
+TARGET_DIR="$REAL_HOME/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Edit"
+echo "TARGET_DIR=$TARGET_DIR" >> /tmp/yt_debug.log
+
+mkdir -p "$TARGET_DIR"
+echo "mkdir exit code: $?" >> /tmp/yt_debug.log
+
+ls -la /tmp/yt_installer_payload >> /tmp/yt_debug.log 2>&1
+
+cp "/tmp/yt_installer_payload/yt-downloader.py" "$TARGET_DIR/"
+echo "cp exit code: $?" >> /tmp/yt_debug.log
+
+chown "$REAL_USER" "$TARGET_DIR/yt-downloader.py"
+echo "chown exit code: $?" >> /tmp/yt_debug.log
+
+echo "postinstall finished" >> /tmp/yt_debug.log
+exit 0
