@@ -19,7 +19,7 @@
 A native panel that lives inside DaVinci Resolve's Scripts menu. Browse YouTube inside the app, hit download, and the clip lands directly in your Media Pool and onto your current timeline — no browser tab-switching, no manual importing.
 
 <div align="center">
-<img src="assets/screenshot-main.png" width="500" alt="App screenshot showing the embedded browser and download panel">
+<img src="assets/Screenshot 2026-07-30 at 17.46.44.png" width="500" >
 </div>
 
 ## Features
@@ -31,7 +31,7 @@ A native panel that lives inside DaVinci Resolve's Scripts menu. Browse YouTube 
 - 🌑 **Dark, native-feeling UI** styled to match Resolve
 
 <div align="center">
-<img src="assets/screenshot-progress.png" width="500" alt="App screenshot showing the download progress bar">
+<img src="assets/Screenshot 2026-07-30 at 17.47.01.png" width="500" >
 </div>
 
 ## Installation
