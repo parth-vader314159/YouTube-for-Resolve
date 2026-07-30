@@ -6,7 +6,6 @@
 
 ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
-![License](https://img.shields.io/badge/use-personal--only-red)
 
 [**⬇ Download for macOS**](https://github.com/parth-vader314159/YouTube-for-Resolve/releases/latest)
 
@@ -16,7 +15,7 @@
 
 ## What it does
 
-A native panel that lives inside DaVinci Resolve's Scripts menu. Browse YouTube inside the app, hit download, and the clip lands directly in your Media Pool and onto your current timeline — no browser tab-switching, no manual importing.
+A Plugin for Davinci Resolve that lives inside the script panel of Resolve and lets you browse YouTube natively and download and import any video as mp3 or mp4 straight to the timeline instantly. 
 
 <div align="center">
 <img src="assets/Screenshot 2026-07-30 at 17.46.44.png" width="500" >
@@ -48,10 +47,6 @@ A native panel that lives inside DaVinci Resolve's Scripts menu. Browse YouTube 
 - DaVinci Resolve (installed, with a project open)
 - Python 3.10+ with `PySide6`, `PySide6-Addons`, and `yt-dlp` installed
 - `ffmpeg` installed (`brew install ffmpeg`)
-
-## A note on use
-
-This tool is intended for downloading content you own the rights to, or that's licensed for reuse (your own uploads, Creative Commons footage, stock media, etc.) — not for pulling arbitrary copyrighted video off YouTube. Use responsibly.
 
 ---
 
