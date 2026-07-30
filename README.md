@@ -8,7 +8,7 @@
 ![Python](https://img.shields.io/badge/python-3.10+-blue)
 ![License](https://img.shields.io/badge/use-personal--only-red)
 
-[**⬇ Download for macOS**](https://github.com/parth-vader314159/yt-resolve/releases/latest/download/YTforResolveInstaller.pkg)
+[**⬇ Download for macOS**](https://github.com/parth-vader314159/YouTube-for-Resolve/releases/latest)
 
 </div>
 
