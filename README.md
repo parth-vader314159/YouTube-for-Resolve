@@ -30,7 +30,6 @@ A Plugin for Davinci Resolve that lives inside the script panel of Resolve and l
 - 🌑 **Dark, native-feeling UI** styled to match Resolve
 
 <div align="center">
-<img src="assets/Screenshot 2026-07-30 at 17.47.01.png" width="500" >
 </div>
 
 ## Installation
