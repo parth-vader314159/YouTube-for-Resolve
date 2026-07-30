@@ -1,0 +1,16 @@
+#!/bin/bash
+
+REAL_USER=$(stat -f%Su /dev/console)
+REAL_HOME=$(dscl . -read /Users/"$REAL_USER" NFSHomeDirectory | awk '{print $2}')
+
+TARGET_DIR="$REAL_HOME/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Edit"
+
+mkdir -p "$TARGET_DIR"
+cp "/tmp/yt_installer_payload/yt-downloader.py" "$TARGET_DIR/"
+
+chown "$REAL_USER" "$TARGET_DIR/yt-downloader.py"
+
+exit 0
+
+
+
