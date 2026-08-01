@@ -1,9 +1,11 @@
 import sys, os
+import subprocess
 
 log_path = os.path.expanduser("~/Movies/resolve_downloads/log.txt")
 os.makedirs(os.path.dirname(log_path), exist_ok=True)
 sys.stdout = open(log_path, "a")
 sys.stderr = sys.stdout
+
 
 sys.path.append("/Library/Application Support/Blackmagic Design/DaVinci Resolve/Developer/Scripting/Modules")
 import DaVinciResolveScript as dvr
@@ -12,10 +14,11 @@ import threading
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QRadioButton, QButtonGroup, QProgressBar
+    QLabel, QPushButton, QRadioButton, QButtonGroup, QProgressBar, QFrame
 )
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtCore import Qt, Signal, QObject, QUrl
+from PySide6.QtCore import Qt, Signal, QObject, QUrl, QSize
+import qtawesome as qta
 
 DOWNLOAD_DIR = os.path.expanduser("~/Movies/resolve_downloads")
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -81,8 +84,8 @@ class WorkerSignals(QObject):
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("yt-downloader")
-        self.resize(800, 450)
+        self.setWindowTitle("YouTube for Resolve")
+        self.resize(560, 780)
 
         self.current_video_url = ""
 
@@ -91,52 +94,90 @@ class MainWindow(QWidget):
         self.signals.progress.connect(self.update_progress)
         self.signals.finished.connect(lambda: self.download_btn.setEnabled(True))
 
-        layout = QVBoxLayout()
-        layout.setSpacing(14)
-        layout.setContentsMargins(20, 20, 20, 20)
+        outer = QVBoxLayout()
+        outer.setContentsMargins(24, 20, 24, 24)
+        outer.setSpacing(16)
 
-        title = QLabel("Import to Resolve")
+        header_row = QHBoxLayout()
+        header_row.setSpacing(10)
+
+        logo_label = QLabel()
+        logo_label.setPixmap(qta.icon("fa5b.youtube", color="#ff0000").pixmap(QSize(28, 28)))        
+        header_row.addWidget(logo_label)
+
+        title = QLabel("YouTube for Resolve")
         title.setObjectName("title")
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+        header_row.addWidget(title)
+        header_row.addStretch()
+
+        outer.addLayout(header_row)
+
+        browser_card = QFrame()
+        browser_card.setObjectName("card")
+        browser_layout = QVBoxLayout(browser_card)
+        browser_layout.setContentsMargins(2, 2, 2, 2)
 
         self.browser = QWebEngineView()
         self.browser.setUrl(QUrl("https://www.youtube.com"))
-        self.browser.setMinimumHeight(380)
+        self.browser.setMinimumHeight(400)
         self.browser.urlChanged.connect(self.on_url_changed)
-        layout.addWidget(self.browser)
+        browser_layout.addWidget(self.browser)
+
+        outer.addWidget(browser_card)
+
+        controls_card = QFrame()
+        controls_card.setObjectName("card")
+        controls_layout = QVBoxLayout(controls_card)
+        controls_layout.setContentsMargins(18, 16, 18, 16)
+        controls_layout.setSpacing(14)
 
         format_row = QHBoxLayout()
-        self.mp4_radio = QRadioButton("MP4 (video)")
-        self.mp3_radio = QRadioButton("MP3 (audio)")
+        format_row.setSpacing(20)
+
+        self.mp4_radio = QRadioButton()
+        self.mp4_radio.setIcon(qta.icon("fa5s.film", color="#e5e5e5"))
+        self.mp4_radio.setIconSize(QSize(16, 16))
+        self.mp4_radio.setText("  MP4  \u00b7  Video")
         self.mp4_radio.setChecked(True)
+
+        self.mp3_radio = QRadioButton()
+        self.mp3_radio.setIcon(qta.icon("fa5s.music", color="#e5e5e5"))
+        self.mp3_radio.setIconSize(QSize(16, 16))
+        self.mp3_radio.setText("  MP3  \u00b7  Audio")
+
         group = QButtonGroup(self)
         group.addButton(self.mp4_radio)
         group.addButton(self.mp3_radio)
+
         format_row.addWidget(self.mp4_radio)
         format_row.addWidget(self.mp3_radio)
         format_row.addStretch()
-        layout.addLayout(format_row)
+        controls_layout.addLayout(format_row)
 
-        self.download_btn = QPushButton("Download & Import")
+        self.download_btn = QPushButton("  Download & Import")
+        self.download_btn.setIcon(qta.icon("fa5s.download", color="white"))
+        self.download_btn.setIconSize(QSize(16, 16))
+        self.download_btn.setCursor(Qt.PointingHandCursor)
         self.download_btn.clicked.connect(self.run_pipeline)
-        layout.addWidget(self.download_btn)
+        controls_layout.addWidget(self.download_btn)
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
-        layout.addWidget(self.progress_bar)
+        controls_layout.addWidget(self.progress_bar)
 
         self.progress_detail = QLabel("")
         self.progress_detail.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.progress_detail)
+        controls_layout.addWidget(self.progress_detail)
 
         self.status_label = QLabel("")
         self.status_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.status_label)
+        controls_layout.addWidget(self.status_label)
 
-        self.setLayout(layout)
+        outer.addWidget(controls_card)
+
+        self.setLayout(outer)
         self.apply_styles()
 
     def on_url_changed(self, qurl):
@@ -156,7 +197,7 @@ class MainWindow(QWidget):
         self.progress_bar.setValue(int(percent))
         detail = (
             f"{data.get('downloaded_str','')} / {data.get('total_str','')}  "
-            f"•  {data.get('speed_str','')}  •  ETA {data.get('eta_str','')}"
+            f"\u2022  {data.get('speed_str','')}  \u2022  ETA {data.get('eta_str','')}"
         )
         self.progress_detail.setText(detail)
 
@@ -193,57 +234,67 @@ class MainWindow(QWidget):
         threading.Thread(target=worker, daemon=True).start()
 
     def apply_styles(self):
-        self.setStyleSheet("""
-            QWidget {
+        
+        font_stack = "'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+
+        self.setStyleSheet(f"""
+            QWidget {{
+                background-color: #1c1c1c;
+                font-family: {font_stack};
+            }}
+            QFrame#card {{
                 background-color: #272727;
-                font-family: 'Segoe UI', sans-serif;
-            }
-            QLabel#title {
-                font-size: 20px;
-                font-weight: bold;
+                border-radius: 12px;
+            }}
+            QLabel#title {{
+                font-size: 19px;
+                font-weight: 600;
                 color: #ffffff;
-            }
-            QLabel {
-                color: #cccccc;
+            }}
+            QLabel {{
+                color: #a3a3a3;
                 font-size: 13px;
-            }
-            QRadioButton {
-                color: #dddddd;
-            }
-            QRadioButton::indicator {
-                width: 16px;
-                height: 16px;
-                border-radius: 8px;
+            }}
+            QRadioButton {{
+                color: #e5e5e5;
+                font-size: 13px;
+                spacing: 6px;
+            }}
+            QRadioButton::indicator {{
+                width: 15px;
+                height: 15px;
+                border-radius: 7px;
                 border: 2px solid #ff0000;
-            }
-            QRadioButton::indicator:checked {
+            }}
+            QRadioButton::indicator:checked {{
                 background-color: #ff0000;
-            }
-            QPushButton {
+            }}
+            QPushButton {{
                 background-color: #ff0000;
                 color: white;
                 border-radius: 8px;
-                padding: 10px;
-                font-weight: bold;
+                padding: 11px;
+                font-weight: 600;
                 font-size: 13px;
-            }
-            QPushButton:hover {
+                text-align: center;
+            }}
+            QPushButton:hover {{
                 background-color: #cc0000;
-            }
-            QPushButton:disabled {
-                background-color: #a3a3a3;
-                color: #272727;
-            }
-            QProgressBar {
+            }}
+            QPushButton:disabled {{
+                background-color: #3a3a3a;
+                color: #777777;
+            }}
+            QProgressBar {{
                 border: none;
                 border-radius: 6px;
-                background-color: #a3a3a3;
-                height: 12px;
-            }
-            QProgressBar::chunk {
+                background-color: #3a3a3a;
+                height: 10px;
+            }}
+            QProgressBar::chunk {{
                 background-color: #ff0000;
                 border-radius: 6px;
-            }
+            }}
         """)
 
 
@@ -252,3 +303,4 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
