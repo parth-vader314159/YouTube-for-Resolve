@@ -1,20 +1,13 @@
-# Logs and downloads
-resolve_downloads/
-*.log
-
-# Build artifacts
-build/
-dist/
-*.spec
-Output/
-
-# macOS junk
+Davinci-yt-MacOS/dist/
+Davinci-yt-MacOS/build/
+Davinci-yt-MacOS/payload_app/
+Davinci-yt-MacOS/payload app/
+Davinci-yt-MacOS/payload_script/
+Davinci-yt-MacOS/payload script/
+Davinci-yt-MacOS/*.spec
+Davinci-yt-MacOS/app_component.pkg
+Davinci-yt-MacOS/script_component.pkg
+Davinci-yt-MacOS/YTtoResolveInstaller.pkg
 .DS_Store
-
-# Python
 __pycache__/
 *.pyc
-
-# Installer package (rebuild locally instead of committing binaries)
-*.pkg
-*.exe
