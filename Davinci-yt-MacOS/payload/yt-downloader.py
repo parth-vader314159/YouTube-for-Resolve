@@ -20,10 +20,90 @@ from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtCore import Qt, Signal, QObject, QUrl, QSize
 import qtawesome as qta
 
+import sys
+import subprocess
+import platform
+import shutil
+
+def ensure_ffmpeg():
+    
+    if shutil.which("ffmpeg"):
+        print("ffmpeg already installed.")
+        return True
+
+    system = platform.system()
+    print("ffmpeg not found, attempting to install...")
+
+    try:
+        if system == "Darwin":  # macOS
+            if not shutil.which("brew"):
+                print("Homebrew not found. Install it from brew.sh, then re-run this script.")
+                return False
+            subprocess.check_call(["brew", "install", "ffmpeg"])
+
+        elif system == "Windows":
+            if shutil.which("winget"):
+                subprocess.check_call(["winget", "install", "-e", "--id", "Gyan.FFmpeg"])
+            elif shutil.which("choco"):
+                subprocess.check_call(["choco", "install", "ffmpeg", "-y"])
+            else:
+                print("Neither winget nor choco found. Install ffmpeg manually from ffmpeg.org.")
+                return False
+
+        else:
+            print(f"Unsupported OS for auto-install: {system}")
+            return False
+
+    except subprocess.CalledProcessError as e:
+        print(f"ffmpeg install failed: {e}")
+        return False
+
+    
+    if shutil.which("ffmpeg"):
+        print("ffmpeg installed successfully.")
+        return True
+    else:
+        print("ffmpeg install ran but binary still not found on PATH. You may need to restart your terminal/app.")
+        return False
+
+
+ensure_ffmpeg()
+
+
+import subprocess
+import importlib
+
+REQUIRED_PACKAGES = {
+    "PySide6": "PySide6",
+    "yt_dlp": "yt-dlp",
+    "qtawesome": "qtawesome",
+}
+
+def ensure_dependencies():
+    missing = []
+    for module_name, pip_name in REQUIRED_PACKAGES.items():
+        try:
+            importlib.import_module(module_name)
+        except ImportError:
+            missing.append(pip_name)
+
+    if missing:
+        print(f"Installing missing packages: {', '.join(missing)}")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
+
+ensure_dependencies()
+
 DOWNLOAD_DIR = os.path.expanduser("~/Movies/resolve_downloads")
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-FFMPEG_LOCATION = "/opt/homebrew/bin"  # adjust to your `which ffmpeg` result
+import sys, os
+
+if getattr(sys, 'frozen', False):
+   
+    FFMPEG_LOCATION = sys._MEIPASS
+else:
+    
+    FFMPEG_LOCATION = "/opt/homebrew/bin"  
 
 
 def download(url, audio_only=False, progress_callback=None):
@@ -303,4 +383,5 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
 
